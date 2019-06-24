@@ -95,6 +95,11 @@ def error_handler(err_msg, source):
 
     print ("\nERROR")
     print ('    ' + str(source))
-    print ('    Codigo de Error: ' + str(err_msg[0]))
-    print ('    Mensaje de Error: ' + err_msg[1] + '\n')
+    try:
+        err_msg[0], err_msg[1]
+        print ('    Codigo de Error: ' + str(err_msg[0]))
+        print ('    Mensaje de Error: ' + err_msg[1] + '\n')
+    except IndexError:
+        print '    Informacion de Error: ', err_msg, "\n"
+
     pass
