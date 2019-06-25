@@ -227,9 +227,6 @@ def executeInfoCommand(commandString, connectionIp, connectionPort, bufferSize):
 def executeUpdateCommand(commandString, connectionIp, connectionPort, bufferSize):
     "Ejecuta el comando de actualizar"
 
-    # Inicio del mensaje de respuesta
-    commandString = ""
-
     # Bandera -h y --host-ip
     if (re.match("^(-h|--host-ip)\s*(\d{1,3}\.){3}\d{1,3}$", commandString)):
 
@@ -264,6 +261,9 @@ def executeUpdateCommand(commandString, connectionIp, connectionPort, bufferSize
 
         # Se actualiza valor de buffer
         bufferSize = int(commandString)
+
+        # Inicio del mensaje de respuesta
+        commandString = ""
 
         # Se verifica tamano minimo de buffer
         if (bufferSize < MIN_BUFFER_SIZE):
