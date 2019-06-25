@@ -19,6 +19,25 @@ ERROR_CONN_RECIEVE = "Mensaje no recibido."
 ERROR_CONN_CLOSE = "Conexion no cerrada."
 ERROR_CONN_TIMEOUT = "Se cumplio el timeout sin recibir una respuesta del servidor."
 
+MESSAGE_EXIT = "Cerrando la aplicacion."                  # Salir de aplicacion.
+MESSAGE_NO_ACTION = "Comando no aplica."                  # Comando sin efectos.
+MESSAGE_INCORRECT_COMMAND = "Comando incorrecto."         # Comando incorrecto.
+# Respuestas del servidor.
+MESSAGE_SERVER_EXIT = "Cerrando el servidor."
+MESSAGE_SERVER_NO_ACTION = MESSAGE_NO_ACTION
+MESSAGE_SERVER_INCORRECT_COMMAND = MESSAGE_INCORRECT_COMMAND
+# Respuestas del cliente.
+MESSAGE_CLIENT_EXIT = "Cerrando el CLIENTE."
+MESSAGE_CLIENT_NO_ACTION = MESSAGE_NO_ACTION
+MESSAGE_CLIENT_INCORRECT_COMMAND = MESSAGE_INCORRECT_COMMAND
+
+# Expresion regular para comando exit.
+EXIT_RE = "^exit\s*"
+# Expresion regular para comando info.
+INFO_RE = "^info\s*"
+# Expresion regular para comando update.
+UPDATE_RE = "^(update\s*|ud\s*)*"
+
 def parseParameters(argv, DEBUG):
     "Obtener parametros ingresados mediante argumentos."
 
@@ -181,7 +200,7 @@ def getCommandScope(commandString, baseCommandRe):
 # Ejecucion de comandos
 #
 
-def executeInfoCommand(commandString, bufferSize, connectionIp, connectionPort, MESSAGE_NO_ACTION):
+def executeInfoCommand(commandString, connectionIp, connectionPort, bufferSize):
     "Ejecuta el comando de informacion"
 
     if (commandString == ""):
@@ -205,7 +224,7 @@ def executeInfoCommand(commandString, bufferSize, connectionIp, connectionPort, 
     return commandString
 
 
-def executeUpdateCommand(commandString, connectionIp, connectionPort, bufferSize, MESSAGE_NO_ACTION):
+def executeUpdateCommand(commandString, connectionIp, connectionPort, bufferSize):
     "Ejecuta el comando de actualizar"
 
     # Inicio del mensaje de respuesta
