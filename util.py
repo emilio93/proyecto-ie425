@@ -88,6 +88,11 @@ def parseParameters(argv, DEBUG):
         print ("  Tamano de buffer: %s\n  Help Flag: %s\n" %
                (bufferSize, helpFlag))
 
+    # Se verifica tamano minimo de buffer
+    if (bufferSize < MIN_BUFFER_SIZE):
+        # Se aplica limite minimo de tamano de buffer
+        bufferSize = MIN_BUFFER_SIZE
+
     # Se devuelve los tados de direccion ip, puerto, tamano de buffer y bandera de ayuda.
     return connectionIp, connectionPort, bufferSize, helpFlag
 
