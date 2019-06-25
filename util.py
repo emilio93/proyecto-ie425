@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+# Paquete de expresiones regulares.
+import re
+
+# Tamano minimo de buffer.
+MIN_BUFFER_SIZE = 16
+
 def parseParameters(argv, DEBUG):
     "Obtener parametros ingresados mediante argumentos."
 
@@ -103,3 +109,137 @@ def error_handler(err_msg, source):
         print '    Informacion de Error: ', err_msg, "\n"
 
     pass
+
+
+def commandCleanup(commandString):
+    "Limpia el comando, elimina indicador de comando y espacios en blanco multiples"
+
+    # Eliminar $$ y espacios en blanco luego de esto.
+    commandString = re.sub('^\$\$\s+', '', commandString)
+
+    # Eliminar espacios en blanco al final del comando.
+    commandString = re.sub('\s+$', '', commandString)
+
+    # Eliminar multiples espacios seguidos.
+    commandString = re.sub('\s+', ' ', commandString)
+
+    return commandString
+
+
+def getCommandScope(commandString, baseCommandRe):
+    "Indica en que ambitos funciona el comando."
+
+    # Se asume que no es local
+    isLocal = False
+
+    # Se asume que no es remoto
+    isRemote = False
+
+    # Se elimina comando base(eg, exit, info, ...).
+    commandString = re.sub(baseCommandRe, "", commandString)
+
+    # Se verifica si es local
+    if (re.match("^local\s*", commandString)):
+        isLocal = True
+        # Se elimina indicador del comando
+        commandString = re.sub("^local\s*", "", commandString)
+
+    # Se verifica si es remoto
+    elif (re.match("^remote\s*", commandString)):
+        isRemote = True
+        # Se elimina indicador del comando
+        commandString = re.sub("^remote\s*", "", commandString)
+
+    # Si no se indica, se aplica a local y remoto
+    else:
+        isLocal = True
+        isRemote = True
+
+    return commandString, isLocal, isRemote
+
+
+#
+# Ejecucion de comandos
+#
+
+def executeInfoCommand(commandString, bufferSize, connectionIp, connectionPort, MESSAGE_NO_ACTION):
+    "Ejecuta el comando de informacion"
+
+    if (commandString == ""):
+        # Se devuelve toda la informacion
+        commandString = ("IP: %s, Puerto: %s, Tamano de Buffer: %s" %
+                         (connectionIp, connectionPort, bufferSize))
+    elif (commandString == "-h"):
+        # Se devuelve el ip.
+        commandString = ("%s" % (connectionIp))
+
+    elif (commandString == "-p"):
+        # Se envia el puerto.
+        commandString = ("%s" % (connectionPort))
+    elif (commandString == "-s"):
+        # Se envia el tamano de buffer.
+        commandString = ("%s" % (bufferSize))
+    else:
+        # No se aplica accion en casos distintos
+        commandString = MESSAGE_NO_ACTION
+
+    return commandString
+
+
+def executeUpdateCommand(commandString, connectionIp, connectionPort, bufferSize, MESSAGE_NO_ACTION):
+    "Ejecuta el comando de actualizar"
+
+    # Inicio del mensaje de respuesta
+    commandString = ""
+
+    # Bandera -h y --host-ip
+    if (re.match("^(-h|--host-ip)\s*(\d{1,3}\.){3}\d{1,3}$", commandString)):
+
+        # Se obtiene el valor de ip
+        commandString = re.sub("^(-h|--host-ip)\s*", "", commandString)
+
+        # Se actualiza valor de ip
+        connectionIp = commandString
+
+        # Se finaliza mensaje de respuesta
+        commandString = ("Ip se actualiza a %s" %
+                         (connectionIp)) + commandString
+
+    # Bandera -p y --port
+    if (re.match("^(-p|--port)\s*\d+$", commandString)):
+
+        # Se obtiene el valor de puerto
+        commandString = re.sub("^(-p|--port)\s*", "", commandString)
+
+        # Se actualiza valor de puerto
+        connectionPort = int(commandString)
+
+        # Se finaliza mensaje de respuesta
+        commandString = ("Puerto se actualiza a %s" %
+                         (connectionPort)) + commandString
+
+    # Bandera -s y --buffer-size
+    elif (re.match("^(-s|--buffer-size)\s*\d+$", commandString)):
+
+        # Se obtiene el valor de buffer
+        commandString = re.sub("^(-s|--buffer-size)\s*", "", commandString)
+
+        # Se actualiza valor de buffer
+        bufferSize = int(commandString)
+
+        # Se verifica tamano minimo de buffer
+        if (bufferSize < MIN_BUFFER_SIZE):
+            # Se aplica limite minimo de tamano de buffer
+            bufferSize = MIN_BUFFER_SIZE
+            # Se indica tamano minimo del buffer si se selecciono un valor menor
+            commandString = ("(Minimo es %s)" % (MIN_BUFFER_SIZE))
+
+        # Se finaliza mensaje de respuesta
+        commandString = ("Tamano de buffer se actualiza a %s" %
+                         (bufferSize)) + commandString
+
+    else:
+        # No se aplica accion en casos distintos
+        commandString = MESSAGE_NO_ACTION
+
+    return commandString, connectionIp, connectionPort, bufferSize
