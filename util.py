@@ -96,9 +96,24 @@ def parseParameters(argv, DEBUG):
     # Se devuelve los tados de direccion ip, puerto, tamano de buffer y bandera de ayuda.
     return connectionIp, connectionPort, bufferSize, helpFlag
 
+def printHelp(applicationName, command):
+    "Imprime informacion de ayuda del programa."
+
+    print("%s\nUSO:\n" % (applicationName))
+    print("  python %s -h hostIp -p puerto -s tamanoBufer" % (command))
+    print("  python %s --host-ip hostIp --port puerto --buffer-size tamanoBufer\n\nEjemplo:\n" % (command))
+    print("  python %s -h 127.0.0.1 -p 5005 -s 20\n" % (command))
+    pass
 
 
+def printAppInfo(applicationName, ip, port, bufferSize):
+    "Imprime la informacion del programa"
 
+    print("%s" % (applicationName))
+    print("  IP: %s" % (ip))
+    print("  Puerto: %s" % (port))
+    print("  Tamano de Buffer: %s" % (bufferSize))
+    pass
 
 def error_handler(err_msg, source):
     "Manejo de errores. Se imprimen los datos del error."
