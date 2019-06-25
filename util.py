@@ -6,6 +6,19 @@ import re
 # Tamano minimo de buffer.
 MIN_BUFFER_SIZE = 16
 
+MESSAGE_MESSAGE_REQUEST = "\nMensaje: "
+
+MESSAGE_CONN_ADDRESS = "\nDireccion de conexion"
+MESSAGE_MESSAGE_RECEIVED = "  Mensaje recibido"
+MESSAGE_MESSAGE_SENT = "  Mensaje enviado"
+MESSAGE_CMD_RESPONSE = "  Respuesta a comando"
+
+ERROR_CONN_INIT = "Conexion no creada."
+ERROR_CONN_SEND = "Mensaje no enviado."
+ERROR_CONN_RECIEVE = "Mensaje no recibido."
+ERROR_CONN_CLOSE = "Conexion no cerrada."
+ERROR_CONN_TIMEOUT = "Se cumplio el timeout sin recibir una respuesta del servidor."
+
 def parseParameters(argv, DEBUG):
     "Obtener parametros ingresados mediante argumentos."
 
