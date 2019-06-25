@@ -227,34 +227,8 @@ def executeInfoCommand(commandString, connectionIp, connectionPort, bufferSize):
 def executeUpdateCommand(commandString, connectionIp, connectionPort, bufferSize):
     "Ejecuta el comando de actualizar"
 
-    # Bandera -h y --host-ip
-    if (re.match("^(-h|--host-ip)\s*(\d{1,3}\.){3}\d{1,3}$", commandString)):
-
-        # Se obtiene el valor de ip
-        commandString = re.sub("^(-h|--host-ip)\s*", "", commandString)
-
-        # Se actualiza valor de ip
-        connectionIp = commandString
-
-        # Se finaliza mensaje de respuesta
-        commandString = ("Ip se actualiza a %s" %
-                         (connectionIp)) + commandString
-
-    # Bandera -p y --port
-    if (re.match("^(-p|--port)\s*\d+$", commandString)):
-
-        # Se obtiene el valor de puerto
-        commandString = re.sub("^(-p|--port)\s*", "", commandString)
-
-        # Se actualiza valor de puerto
-        connectionPort = int(commandString)
-
-        # Se finaliza mensaje de respuesta
-        commandString = ("Puerto se actualiza a %s" %
-                         (connectionPort)) + commandString
-
     # Bandera -s y --buffer-size
-    elif (re.match("^(-s|--buffer-size)\s*\d+$", commandString)):
+    if (re.match("^(-s|--buffer-size)\s*\d+$", commandString)):
 
         # Se obtiene el valor de buffer
         commandString = re.sub("^(-s|--buffer-size)\s*", "", commandString)
