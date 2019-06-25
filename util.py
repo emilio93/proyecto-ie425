@@ -97,21 +97,7 @@ def parseParameters(argv, DEBUG):
     return connectionIp, connectionPort, bufferSize, helpFlag
 
 
-def getMessage():
-    "Mensaje a enviar"
 
-    # Se lee el mensaje.
-    MESSAGE = raw_input('\nMensaje: ')
-    # Se devuelve el mensaje.
-    return MESSAGE
-
-
-def manipulateData(data):
-    "Manipulacion de los datos por parte del servidor."
-
-    # Se devuelven los caracteres recibidos en mayuscula
-    # cuando aplica(ie, solo en letras).
-    return data.upper()
 
 
 def error_handler(err_msg, source):
