@@ -1,91 +1,102 @@
+#!/usr/bin/env python
+
+# Paquete de sockets.
 import socket
 
-import re
-
+# Paquete para llamadas a sistema.
 import sys
 
+# Paquete de utilidades compartidas en las aplicaciones.
 import util
 
+# Paquete de utilidades compartidas en las aplicaciones de servidor.
+import serverUtil
+
+# Se imprimen mensajes adicionales si se pone en True.
 DEBUG = True
+
+# Nombre de la aplicacion.
+APP_NAME = "Servidor UDP"
+
+# Comando de la aplicacion.
+APP_CMD = "./udpServer.py"
 
 # Se obtienen los parametros del Servidor UDP.
 # Los parametros son seleccionados por defecto o bien pasados en
 # la linea de comandos.
-UDP_IP, UDP_PORT, BUFFER_SIZE, HELP_FLAG = util.parseParameters(
+connectionIp, connectionPort, bufferSize, helpFlag = util.parseParameters(
     sys.argv, DEBUG)
 
-# Respuesta cuando se cierra el servidor.
-EXIT_MESSAGE = "Cerrando el servidor."
-EXIT_FLAG = False
-
 # En caso de solicitarse informacion de ayuda, se imprime y se termina el programa.
-if (HELP_FLAG):
-    print("Servidor UDP\n\nUSO:\n")
-    print("  python ./udpServer.py -h hostIp -p puerto -s tamanoBufer")
-    print("  python ./udpServer.py --host-ip hostIp --port puerto --buffer-size tamanoBufer\n\nEjemplo:\n")
-    print("  python ./udpServer.py -h 127.0.0.1 -p 5005 -s 20\n")
-    # Salir del programa
+if (helpFlag):
+    util.printHelp(APP_NAME, APP_CMD)
     sys.exit()
 
-# Se indican datos del programa.
 if (DEBUG):
-    print("Servidor UDP")
-    print("IP: %s \nPuerto: %s\nTamano de Buffer: %s" %
-          (UDP_IP, UDP_PORT, BUFFER_SIZE))
+    # Se indican datos del programa.
+    util.printAppInfo(APP_NAME, connectionIp, connectionPort, bufferSize)
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((UDP_IP, UDP_PORT))
+try:
+    # Se crea el socket con direccion IPv4 y tipo datagrama(es decir, UDP).
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+    # Se asignan valores de direccion y puerto al socket.
+    sock.bind((connectionIp, connectionPort))
+
+except socket.error as err_msg:
+    # En caso de no poder crear la conexion, se indica y se termina el programa.
+    util.error_handler(err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_INIT)))
+    sys.exit()
+
+# Se esperan datos indefinidamente.
 while (1):
-    # Se baja la bandera de salida
-    EXIT_FLAG = False
+    # Se baja la bandera de salida.
+    exitFlag = False
 
     try:
-        data, addr = sock.recvfrom(int(BUFFER_SIZE))
-        if (DEBUG):
-            print '\nDireccion de conexion:', addr
-            print "\n  Mensaje recibido:", data
-
-        if (data == "exit"):
-            # Levantar la bandera de salida.
-            EXIT_FLAG = True
-
-            # Actualizar datos con mensaje de salida del servidor.
-            data = EXIT_MESSAGE
-
-        elif (data == "info"):
-            data = ("IP: %s, Puerto: %s, Tamano de Buffer: %s" % (UDP_IP, UDP_PORT, BUFFER_SIZE))
-        elif (data == "info -h"):
-            data = ("%s" % (UDP_IP))
-        elif (data == "info -p"):
-            data = ("%s" % (UDP_PORT))
-        elif (data == "info -s"):
-            data = ("%s" % (BUFFER_SIZE))
-        elif ("update -s " in data):
-            data = re.sub('\s+', ' ', data)
-            BUFFER_SIZE = int(re.sub('update -s ', '', data))
-            data = ("Tamano de buffer actualizado: %s" % (BUFFER_SIZE))
-        else:
-            data = util.manipulateData(data)
-
-        sock.sendto(data, addr)
-        if (DEBUG):
-            print "  Mensaje enviado:", data
+        # Se obtienen hasta bufferSize datos y direccion de conexion.
+        receivedData, addr = sock.recvfrom(int(bufferSize))
 
     except socket.error as err_msg:
-        data = "Mensaje muy largo. Intentar de nuevo."
-        sock.close()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.sendto(data, (UDP_IP, UDP_PORT))
-        util.error_handler(err_msg, "Servidor UDP: Mensaje recibido es muy largo, aumentar buffer para permitir mensajes mas largos.")
+        # Se indica el error unicamente en el servidor,
+        # dado que no se puede responder(no se dispone de addr).
+        util.error_handler(
+            err_msg, "%s: %s" % (APP_NAME, util.ERROR_CONN_RECIEVE))
+        continue
 
-    if (EXIT_FLAG):
+    if (DEBUG):
+        # Se imprime direccion de conexion y mensaje recibidos.
+        print("%s: %s" % (util.MESSAGE_CONN_ADDRESS, addr))
+        print("%s: %s" % (util.MESSAGE_MESSAGE_RECEIVED, receivedData))
+
+    # Se manipula el mensaje, en caso que se trate de un comando, se le da el manejo adecuado.
+    response, exitFlag, connectionIp, connectionPort, bufferSize, isCommand = serverUtil.parseMessageAsServer(
+        receivedData, connectionIp, connectionPort, bufferSize)
+
+    try:
+        # Se envia la respuesta al cliente.
+        sock.sendto(response, addr)
+
+    except socket.error as err_msg:
+        # En caso de error, se indica que no se mando el mensaje y se termina ciclo de ejecucion, es decir
+        # atiende otra conexiones.
+        util.error_handler(
+            err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_SEND)))
+        continue
+
+    if (DEBUG):
+        # Se indica el mensaje enviado
+        if (isCommand):
+            print("%s: %s" % (util.MESSAGE_CMD_RESPONSE, response))
+        else:
+            print("%s: %s" % (util.MESSAGE_MESSAGE_SENT, response))
+
+    if (exitFlag):
         try:
             # Se cierra la conexion.
             sock.close()
+
         except socket.error as err_msg:
             # En caso de error se imprime el codigo y mensaje de error.
-            util.error_handler(err_msg, "Servidor TCP: No se cerro la conexion.")
+            util.error_handler(err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_CLOSE)))
         sys.exit()
-
-sock.close()

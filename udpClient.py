@@ -1,54 +1,124 @@
+#!/usr/bin/env python
+
+# Paquete de sockets.
 import socket
 
+# Paquete para llamadas a sistema.
 import sys
 
+# Paquete de utilidades compartidas en las aplicaciones.
 import util
 
+# Paquete de utilidades compartidas en las aplicaciones de cliente.
+import clientUtil
+
+# Se imprimen mensajes adicionales si se pone en True.
 DEBUG = True
 
-# Se obtienen los parametros del Servidor UDP.
+# Nombre de la aplicacion.
+APP_NAME = "Cliente UDP"
+
+# Comando de la aplicacion.
+APP_CMD = "./udpClient.py"
+
+# Tiempo que se espera por la respuesta del servidor.
+WAIT_FOR_RESPONSE = 2
+
+# Se obtienen los parametros del Servidor UDP, ip, puerto y
+# tamano de buffer en bytes.
 # Los parametros son seleccionados por defecto o bien pasados en
 # la linea de comandos.
-UDP_IP, UDP_PORT, BUFFER_SIZE, HELP_FLAG = util.parseParameters(
+connectionIp, connectionPort, bufferSize, helpFlag = util.parseParameters(
     sys.argv, DEBUG)
 
 # En caso de solicitarse informacion de ayuda, se imprime y se termina el programa.
-if (HELP_FLAG):
-    print("Cliente UDP\n\nUSO:\n")
-    print("  python ./udpClient.py -h hostIp -p puerto -s tamanoBufer")
-    print("  python ./udpClient.py --host-ip hostIp --port puerto --buffer-size tamanoBufer\n\nEjemplo:\n")
-    print("  python ./udpClient.py -h 127.0.0.1 -p 5005 -s 20\n")
-    # Salir del programa
+if (helpFlag):
+    util.printHelp(APP_NAME, APP_CMD)
+    # Se sale del programa
     sys.exit()
 
 # Se indican datos del programa.
 if (DEBUG):
-    print("Servidor UDP")
-    print("IP: %s \nPuerto: %s\nTamano de Buffer: %s" %
-          (UDP_IP, UDP_PORT, BUFFER_SIZE))
+    util.printAppInfo(APP_NAME, connectionIp, connectionPort, bufferSize)
+
+try:
+    # Se crea el socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+except socket.error as err_msg:
+    # En caso de no poder crear la conexion, se indica y se termina el programa.
+    util.error_handler(err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_INIT)))
+    sys.exit()
 
 while (1):
-    MESSAGE = util.getMessage()
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+    # Se obtiene mensaje del usuario.
+    userMessage = raw_input(util.MESSAGE_MESSAGE_REQUEST)
 
+    # Se procesa el mensaje a enviar.
+    parsedMessage, exitFlag, connectionIp, connectionPort, bufferSize, isCommand, isLocalOnly = clientUtil.parseMessageAsClient(
+        userMessage, connectionIp, connectionPort, bufferSize)
+
+    if (isCommand):
+        # Si el mensaje es un comando, se indica la respuesta de ejecutarlo.
+        if (DEBUG):
+            print ("%s: %s" % (util.MESSAGE_CMD_RESPONSE, parsedMessage))
+
+        # Si el comando es solo local, no hace falta enviarlo al servidor.
+        if (isLocalOnly):
+            if (exitFlag):
+                # Se sale de la aplicacion.
+                break
+            continue
 
     try:
-        sock.settimeout(2)
+        # Se envia mensaje al servidor.
+        sock.sendto(userMessage, (connectionIp, connectionPort))
+
+    except socket.error as err_msg:
+        # En caso de error, se indica que no se mando el mensaje y se termina ciclo de ejecucion.
+        util.error_handler(
+            err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_SEND)))
+        continue
+
+    # Se indica el mensaje enviado.
+    if (DEBUG):
+        print("%s: %s" % (util.MESSAGE_MESSAGE_SENT, userMessage))
+
+    try:
+        # Se espera un tiempo por la respuesta del servidor.
+        sock.settimeout(WAIT_FOR_RESPONSE)
         while (1):
             try:
-                data, addr = sock.recvfrom(int(BUFFER_SIZE))
+                # Se obtienen hasta bufferSize datos y direccion de conexion.
+                data, addr = sock.recvfrom(int(bufferSize))
             except socket.error as err_msg:
-                util.error_handler(err_msg, "Cliente UDP: No se recibio el mensaje.")
+                util.error_handler(
+                    err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_RECIEVE)))
                 break
-            if not data: continue
-            print "Mensaje Recibido:", data
+
+            # Se espera hasta tener una respuesta.
+            if not data:
+                continue
+
+            # Cuando llega la respuesta, se imprime y se deja de esperar.
+            if (DEBUG):
+                print("%s: %s" % (util.MESSAGE_MESSAGE_RECEIVED, data))
             break
     except socket.timeout:
-        print("Cliente UDP: Se cumplio el timeout sin recibir una respuesta, volver a intentar.")
+        print("%s: %s" % (
+            APP_NAME, util.ERROR_CONN_TIMEOUT))
 
-    if (MESSAGE == "exit") :
+    if (exitFlag):
+        # Se sale de la aplicacion.
         break
-sock.close()
+
+try:
+    # Se cierra la conexion.
+    sock.close()
+except socket.error as err_msg:
+    # En caso de error se imprime el codigo y mensaje de error.
+    util.error_handler(err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_CLOSE)))
+
+# Se sale del programa.
 sys.exit()
