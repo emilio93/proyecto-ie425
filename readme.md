@@ -153,8 +153,10 @@ Puerto: 5005
 Tamano de Buffer: 32
 
 Mensaje: hola
-    Datos Enviados: hola
-    Datos Recibidos: HOLA
+  Mensaje enviado: hola
+    Trozo recibido: HOLA
+  Mensaje recibido: HOLA
+  Cliente TCP: Conexion cerrada
 
 Mensaje:
 ```
@@ -162,20 +164,30 @@ Mensaje:
 En la terminal B, es decir, en el servidor, aparecen los datos de la conexión y los datos recibidos y enviados.
 
 ```bash
+#
+# terminal B
+#
 python.exe .\tcpServer.py
 Servidor TCP
 IP: 127.0.0.1
 Puerto: 5005
 Tamano de Buffer: 32
 
-Direccion de conexion: ('127.0.0.1', 52715)
-    Datos Recibidos: hola
-    Datos Enviados: HOLA
+Direccion de conexion: ('127.0.0.1', 56601)
+    Trozo recibido: hola
+    Trozo enviado: HOLA
+  Mensaje recibido: hola
+  Mensaje enviado: HOLA
+  Servidor TCP: Conexion cerrada.
 ```
 
 ### Aplicación
 
-Para las aplicaciones del servidor tanto TCP como UDP, se utiliza una mismo método que se encarga de pasar el texto a mayúscula. Además comparte con el cliente la habilidad de ser cerrado, para esto se envía el mensaje `$$ exit`.
+Para las aplicaciones del servidor tanto TCP como UDP, se utiliza una mismo método que se encarga de pasar el texto a mayúscula y responder esto. Además comparte con el cliente la habilidad de ser cerrado, para esto se recibe el mensaje `$$ exit`. Se puede ver la informacion de los hosts con `$$ info` y se puede actualizar el valor del buffer, por ejemplo a 64, `$$ update -s 64`.
+
+Para las aplicaciones del cliente tanto TCP como UDP, se analiza el mensaje enviado para determinar si se trata de un comando, los mismos que se han indicado para el servidor.
+
+Cuando se quiere aplicar un comando solo al cliente o solo al servidor, se utilizan las palabras `local` y `remote` respectivamente, justo luego del comando. Por ejemplo se cierra el servidor con `$$ exit remote`, o el cliente con `$$ exit local`. Para actualizar el buffer, de nuevo a 64, solo el el servidor, se usaría `$$ update remote -s 64`. En el último caso, se utiliza la bandera `-s`, que indica el tamaño del buffer, para el comando `$$ info`, se permiten las banderas `-h`, `-p` y `-s`, para imprimir solo la dirección ip, puerto, o tamano de buffer respectivamente. Por ejemplo `$$ info local -h`
 
 #### Revisión con Wireshark
 
@@ -185,18 +197,18 @@ Resumen de _three-way handshake_:
 
 | No.     | Source                | Destination           | Protocol | Length | Info |
 | ------- | --------------------- | --------------------- | -------- | ------ | ---- |
-| 1 | 127.0.0.1 | 127.0.0.1 | TCP | 66 | 52715 → 5005 [SYN] Seq=0 Win=64240 Len=0 MSS=65495 WS=256 SACK_PERM=1 |
-| 2 | 127.0.0.1 | 127.0.0.1 | TCP | 66 | 5005 → 52715 [SYN, ACK] Seq=0 Ack=1 Win=65535 Len=0 MSS=65495 WS=256 SACK_PERM=1 |
-| 3 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 52715 → 5005 [ACK] Seq=1 Ack=1 Win=525568 Len=0 |
+| 1 | 127.0.0.1 | 127.0.0.1 | TCP | 66 | 56601 → 5005 [SYN] Seq=0 Win=64240 Len=0 MSS=65495 WS=256 SACK_PERM=1 |
+| 2 | 127.0.0.1 | 127.0.0.1 | TCP | 66 | 5005 → 56601 [SYN, ACK] Seq=0 Ack=1 Win=65535 Len=0 MSS=65495 WS=256 SACK_PERM=1 |
+| 3 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 56601 → 5005 [ACK] Seq=1 Ack=1 Win=525568 Len=0 |
 
 Resumen de desconexión:
 
 | No.     | Source                | Destination           | Protocol | Length | Info |
 | ------- | --------------------- | --------------------- | -------- | ------ | ---- |
-| 8 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 52715 → 5005 [FIN, ACK] Seq=5 Ack=5 Win=525568 Len=0 |
-| 9 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 5005 → 52715 [ACK] Seq=5 Ack=6 Win=525568 Len=0 |
-| 10 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 5005 → 52715 [FIN, ACK] Seq=5 Ack=6 Win=525568 Len=0 |
-| 11 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 52715 → 5005 [ACK] Seq=6 Ack=6 Win=525568 Len=0 |
+| 8 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 56601 → 5005 [FIN, ACK] Seq=5 Ack=5 Win=525568 Len=0 |
+| 9 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 5005 → 56601 [ACK] Seq=5 Ack=6 Win=525568 Len=0 |
+| 10 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 5005 → 56601 [FIN, ACK] Seq=5 Ack=6 Win=525568 Len=0 |
+| 11 | 127.0.0.1 | 127.0.0.1 | TCP | 54 | 56601 → 5005 [ACK] Seq=6 Ack=6 Win=525568 Len=0 |
 
 #### Mayor Cantidad de Conexiones
 
