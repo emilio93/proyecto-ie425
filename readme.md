@@ -312,6 +312,8 @@ Direccion de conexion: ('127.0.0.1', 55860)
 
 #### Revisión con Wireshark
 
+En el archivo [`wireshark-data/ws-udpdump.md`](wireshark-data/ws-udpdump.md) se muestra una captura en wireshark para el ejemplo de uso mostrado. Solo se tienen dos tramas, una enviada por el cliente y la otra enviada por el servidor.
+
 #### Mayor Cantidad de Conexiones
 
 #### Mayor Tamaño del Datagrama
