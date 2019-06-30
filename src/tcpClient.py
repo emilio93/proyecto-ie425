@@ -18,7 +18,7 @@ DEBUG = True
 APP_NAME = "Cliente TCP"
 
 # Comando de la aplicacion.
-APP_CMD = "./tcpServer.py"
+APP_CMD = "tcpServer.py"
 
 # Se obtienen los parametros del Servidor UDP, ip, puerto y
 # tamano de buffer en bytes.

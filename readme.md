@@ -16,6 +16,16 @@
     - [Revisión con Wireshark](#revisión-con-wireshark)
     - [Mayor Cantidad de Conexiones](#mayor-cantidad-de-conexiones)
     - [Mayor Tamaño del Datagrama](#mayor-tamaño-del-datagrama)
+  - [Servidor UDP](#servidor-udp)
+    - [Uso](#uso-2)
+  - [Cliente UDP](#cliente-udp)
+    - [Uso](#uso-3)
+  - [Conexión UDP](#conexión-udp)
+    - [Revisión con Wireshark](#revisión-con-wireshark-1)
+    - [Mayor Cantidad de Conexiones](#mayor-cantidad-de-conexiones-1)
+    - [Mayor Tamaño del Datagrama](#mayor-tamaño-del-datagrama-1)
+  - [Aplicación](#aplicación)
+
 
 ## Parte 2: Trabajo de Investigación y Programación de Sockets con TCP y UDP
 
@@ -64,7 +74,7 @@ Microsoft Windows 10 Pro 10.0.17134 64-bit
 
 Al ejecutar:
 ```bash
-python.exe --version
+python --version
 ```
 Se obtiene:
 ```bash
@@ -85,42 +95,42 @@ Los lenguajes de programación suelen proveer una interfaz para crear _sockets_ 
 
 El servidor TCP espera una conexión en la dirección y puerto seleccionados(por defecto `127.0.0.1:5005`). Cuando recibe una conexión, debe aceptarla y luego comienza a recibir datos en trozos del tamaño del buffer(por defecto 32). Conforme recibe los datos, el servidor los manipula(pasa el texto a mayúsculas) y los devuelve. Al finalizar el trasiego de los datos, el servidor cierra la conexión.
 
-El servidor TCP se encuentra en el archivo `tcpServer.py`.
+El servidor TCP se encuentra en el archivo [`src/tcpServer.py`](src/tcpServer.py).
 
 #### Uso
 
 ```bash
-python.exe .\tcpServer.py --help
-
+python src/tcpServer.py --help
+Servidor TCP
 USO:
 
-  python ./tcpServer.py -h hostIp -p puerto -s tamanoBufer
-  python ./tcpServer.py --host-ip hostIp --port puerto --buffer-size tamanoBufer
+  python tcpServer.py -h hostIp -p puerto -s tamanoBufer
+  python tcpServer.py --host-ip hostIp --port puerto --buffer-size tamanoBufer
 
 Ejemplo:
 
-  python ./tcpServer.py -h 127.0.0.1 -p 5005 -s 20
+  python tcpServer.py -h 127.0.0.1 -p 5005 -s 20
 ```
 
 ### Cliente TCP
 
 El cliente TCP espera un mensaje ingresado por el usuario para enviar a la dirección y puerto seleccionados(por defecto `127.0.0.1:5005`). Se crea la conexión y cuando se envía el mensaje, el cliente queda pendiente a la respuesta del servidor. Como sabe que la longitud de la respuesta es la misma que la del mensaje enviado, el cliente toma tantas respuestas como sean necesarias para haber recibido todos los datos de vuelta. Luego de esto cierra la conexión.
 
-El cliente TCP se encuentra en el archivo `tcpClient.py`.
+El cliente TCP se encuentra en el archivo [`src/tcpClient.py`](src/tcpClient.py).
 
 #### Uso
 
 ```bash
-python.exe .\tcpClient.py --help
-
+python src/tcpClient.py --help
+Cliente TCP
 USO:
 
-  python ./tcpClient.py -h hostIp -p puerto -s tamanoBufer
-  python ./tcpClient.py --host-ip hostIp --port puerto --buffer-size tamanoBufer
+  python tcpClient.py -h hostIp -p puerto -s tamanoBufer
+  python tcpClient.py --host-ip hostIp --port puerto --buffer-size tamanoBufer
 
 Ejemplo:
 
-  python ./tcpClient.py -h 127.0.0.1 -p 5005 -s 1024
+  python tcpClient.py -h 127.0.0.1 -p 5005 -s 1024
 ```
 
 ### Conexión TCP
@@ -130,12 +140,12 @@ Para crear la conexión, se debe abrir dos terminales en la misma ruta donde se 
 #
 # terminal A
 #
-python.exe .\tcpClient.py
+python src/tcpClient.py
 
 #
 # terminal B
 #
-python.exe .\tcpServer.py
+python src/tcpServer.py
 
 ```
 
@@ -146,7 +156,7 @@ El cliente queda esperando otro mensaje para enviar.
 #
 # terminal A
 #
-python.exe .\tcpClient.py
+python src/tcpClient.py
 Cliente TCP
 IP: 127.0.0.1
 Puerto: 5005
@@ -167,7 +177,7 @@ En la terminal B, es decir, en el servidor, aparecen los datos de la conexión y
 #
 # terminal B
 #
-python.exe .\tcpServer.py
+python src/tcpServer.py
 Servidor TCP
 IP: 127.0.0.1
 Puerto: 5005
@@ -183,7 +193,7 @@ Direccion de conexion: ('127.0.0.1', 56601)
 
 #### Revisión con Wireshark
 
-En el archivo [`ws-tcpdump.md`](ws-tcpdump.md) se muestra una captura en wireshark para el ejemplo de uso mostrado. Los 3 primeros _frames_ son el _three-way_ _handshake_, se identifican por la bandera `SYN` las dos primeras, la tercera por la bandera `ACK` y longitud del paquete igual a cero. Las tramas 8, 9, 10 y 11 encargan de finalizar la conexión.
+En el archivo [`wireshark-data/ws-tcpdump.md`](wireshark-data/ws-tcpdump.md) se muestra una captura en wireshark para el ejemplo de uso mostrado. Los 3 primeros _frames_ son el _three-way_ _handshake_, se identifican por la bandera `SYN` las dos primeras, la tercera por la bandera `ACK` y longitud del paquete igual a cero. Las tramas 8, 9, 10 y 11 encargan de finalizar la conexión.
 
 Resumen de _three-way handshake_:
 
@@ -206,9 +216,109 @@ Resumen de desconexión:
 
 #### Mayor Tamaño del Datagrama
 
+### Servidor UDP
+
+El servidor UDP espera una conexión en la dirección y puerto seleccionados(por defecto `127.0.0.1:5005`).
+
+El servidor UDP se encuentra en el archivo [`src/udpServer.py`](src/udpServer.py).
+
+#### Uso
+
+```bash
+python src/udpServer.py --help
+Servidor UDP
+USO:
+
+  python udpServer.py -h hostIp -p puerto -s tamanoBufer
+  python udpServer.py --host-ip hostIp --port puerto --buffer-size tamanoBufer
+
+Ejemplo:
+
+  python udpServer.py -h 127.0.0.1 -p 5005 -s 20
+```
+
+### Cliente UDP
+
+El cliente UDP espera un mensaje ingresado por el usuario para enviar a la dirección y puerto seleccionados(por defecto `127.0.0.1:5005`). Se crea la conexión y cuando se envía el mensaje, el cliente queda pendiente a la respuesta del servidor.
+
+El cliente UDP se encuentra en el archivo [`src/udpClient.py`](src/udpClient.py).
+
+#### Uso
+
+```bash
+python src/udpClient.py --help
+Cliente UDP
+USO:
+
+  python udpClient.py -h hostIp -p puerto -s tamanoBufer
+  python udpClient.py --host-ip hostIp --port puerto --buffer-size tamanoBufer
+
+Ejemplo:
+
+  python udpClient.py -h 127.0.0.1 -p 5005 -s 1024
+```
+
+### Conexión UDP
+
+Para crear la conexión, se debe abrir dos terminales en la misma ruta donde se tienen los archivos [`src/udpClient.py`](src/udpClient.py) y [`src/udpServer.py`](src/udpServer.py). Se ejecuta el cliente en una terminal y el servidor en otra.
+```bash
+#
+# terminal A
+#
+python src/udpClient.py
+
+#
+# terminal B
+#
+python src/udpServer.py
+
+```
+
+En la terminal A, es decir, en el cliente, se puede ingresar un mensaje y presionar enter, el servidor devolverá el mensaje en mayúsculas.
+El cliente queda esperando otro mensaje para enviar.
+
+```bash
+#
+# terminal A
+#
+Cliente UDP
+  IP: 127.0.0.1
+  Puerto: 5005
+  Tamano de Buffer: 32
+
+Mensaje: hola
+  Mensaje enviado: hola
+  Mensaje recibido: HOLA
+
+Mensaje:
+```
+
+En la terminal B, es decir, en el servidor, aparecen los datos de la conexión y los datos recibidos y enviados.
+
+```bash
+#
+# terminal B
+#
+Servidor UDP
+  IP: 127.0.0.1
+  Puerto: 5005
+  Tamano de Buffer: 32
+
+Direccion de conexion: ('127.0.0.1', 55860)
+  Mensaje recibido: hola
+  Mensaje enviado: HOLA
+
+```
+
+#### Revisión con Wireshark
+
+#### Mayor Cantidad de Conexiones
+
+#### Mayor Tamaño del Datagrama
+
 ### Aplicación
 
-Para las aplicaciones del servidor tanto TCP como UDP, se utiliza una mismo método que se encarga de pasar el texto a mayúscula y responder esto. Además comparte con el cliente la habilidad de ser cerrado, para esto se recibe el mensaje `$$ exit`. Se puede ver la informacion de los hosts con `$$ info` y se puede actualizar el valor del buffer, por ejemplo a 64, `$$ update -s 64`.
+Para las aplicaciones del servidor tanto TCP como UDP, se utiliza una mismo método que se encarga de pasar el texto a mayúscula y responder esto al cliente. Además comparte con el cliente la habilidad de ser cerrado, para esto se recibe el mensaje `$$ exit`. Se puede ver la informacion de los hosts con `$$ info` y se puede actualizar el valor del buffer, por ejemplo a 64, `$$ update -s 64`.
 
 Para las aplicaciones del cliente tanto TCP como UDP, se analiza el mensaje enviado para determinar si se trata de un comando, los mismos que se han indicado para el servidor.
 

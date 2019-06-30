@@ -19,7 +19,7 @@ DEBUG = True
 APP_NAME = "Servidor UDP"
 
 # Comando de la aplicacion.
-APP_CMD = "./udpServer.py"
+APP_CMD = "udpServer.py"
 
 # Se obtienen los parametros del Servidor UDP.
 # Los parametros son seleccionados por defecto o bien pasados en
@@ -62,6 +62,18 @@ while (1):
         # dado que no se puede responder(no se dispone de addr).
         util.error_handler(
             err_msg, "%s: %s" % (APP_NAME, util.ERROR_CONN_RECIEVE))
+
+        if (int(err_msg[0]) is 9):
+            try:
+                sock.close()
+            except socket.error as err_msg:
+                # Se indica el error unicamente en el servidor,
+                # dado que no se puede responder(no se dispone de addr).
+                util.error_handler(
+                    err_msg, "%s: %s" % (APP_NAME, util.ERROR_CONN_CLOSE))
+
+            sys.exit()
+
         continue
 
     if (DEBUG):
@@ -96,8 +108,12 @@ while (1):
             # Se cierra la conexion.
             sock.close()
 
+            if (DEBUG):
+                print("%s: %s" % (APP_NAME, util.MESSAGE_CONECTION_CLOSED))
+
         except socket.error as err_msg:
             # En caso de error se imprime el codigo y mensaje de error.
             util.error_handler(err_msg, ("%s: %s" %
-                                         (APP_NAME, util.ERROR_CONN_CLOSE)))
+                                            (APP_NAME, util.ERROR_CONN_CLOSE)))
+
         sys.exit()

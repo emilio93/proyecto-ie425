@@ -19,7 +19,7 @@ DEBUG = True
 APP_NAME = "Cliente UDP"
 
 # Comando de la aplicacion.
-APP_CMD = "./udpClient.py"
+APP_CMD = "udpClient.py"
 
 # Tiempo que se espera por la respuesta del servidor.
 WAIT_FOR_RESPONSE = 2

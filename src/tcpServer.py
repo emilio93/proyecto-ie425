@@ -18,7 +18,7 @@ DEBUG = True
 APP_NAME = "Servidor TCP"
 
 # Comando de la aplicacion.
-APP_CMD = "./udpServer.py"
+APP_CMD = "udpServer.py"
 
 # Se obtienen los parametros del Servidor UDP.
 # Los parametros son seleccionados por defecto o bien pasados en
