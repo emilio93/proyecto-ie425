@@ -76,7 +76,7 @@ while(1):
     fullResponse = ""
 
     # Se indica que se trata del primer pedazo recibido.
-    isFirstChunk =  True
+    isFirstChunk = True
 
     # Se asume que no se trata de un comando.
     isCommand = False
@@ -129,11 +129,11 @@ while(1):
 
         # Si se trata de un comando, solo se lee el primer pedazo.
         if (isFirstChunk and isCommand):
-            isFirstChunk =  False
+            isFirstChunk = False
             break
 
         # Se indica que ya no se trata del primer pedazo.
-        isFirstChunk =  False
+        isFirstChunk = False
 
     # Se imprime datos recibidos del cliente.
     if (DEBUG):

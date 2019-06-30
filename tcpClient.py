@@ -154,7 +154,6 @@ while(1):
         util.error_handler(err_msg, "%s: $" %
                            (APP_NAME, util.ERROR_CONN_CLOSE))
 
-
     if (DEBUG):
         print ("  %s: %s" % (APP_NAME, util.MESSAGE_CONECTION_CLOSED))
 

@@ -46,6 +46,7 @@ INFO_RE = "^info\s*"
 # Expresion regular para comando update.
 UPDATE_RE = "^(update\s*|ud\s*)*"
 
+
 def parseParameters(argv, DEBUG):
     "Obtener parametros ingresados mediante argumentos."
 
@@ -123,6 +124,7 @@ def parseParameters(argv, DEBUG):
     # Se devuelve los tados de direccion ip, puerto, tamano de buffer y bandera de ayuda.
     return connectionIp, connectionPort, bufferSize, helpFlag
 
+
 def printHelp(applicationName, command):
     "Imprime informacion de ayuda del programa."
 
@@ -141,6 +143,7 @@ def printAppInfo(applicationName, ip, port, bufferSize):
     print("  Puerto: %s" % (port))
     print("  Tamano de Buffer: %s" % (bufferSize))
     pass
+
 
 def error_handler(err_msg, source):
     "Manejo de errores. Se imprimen los datos del error."
@@ -203,10 +206,10 @@ def getCommandScope(commandString, baseCommandRe):
 
     return commandString, isLocal, isRemote
 
-
 #
 # Ejecucion de comandos
 #
+
 
 def executeInfoCommand(commandString, connectionIp, connectionPort, bufferSize):
     "Ejecuta el comando de informacion"
@@ -215,6 +218,7 @@ def executeInfoCommand(commandString, connectionIp, connectionPort, bufferSize):
         # Se devuelve toda la informacion
         commandString = ("IP: %s, Puerto: %s, Tamano de Buffer: %s" %
                          (connectionIp, connectionPort, bufferSize))
+
     elif (commandString == "-h"):
         # Se devuelve el ip.
         commandString = ("%s" % (connectionIp))
@@ -222,9 +226,11 @@ def executeInfoCommand(commandString, connectionIp, connectionPort, bufferSize):
     elif (commandString == "-p"):
         # Se envia el puerto.
         commandString = ("%s" % (connectionPort))
+
     elif (commandString == "-s"):
         # Se envia el tamano de buffer.
         commandString = ("%s" % (bufferSize))
+
     else:
         # No se aplica accion en casos distintos
         commandString = MESSAGE_NO_ACTION
