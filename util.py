@@ -173,7 +173,7 @@ def commandCleanup(commandString):
 
 
 def getCommandScope(commandString, baseCommandRe):
-    "Indica en que ambitos funciona el comando."
+    "Indica en que ambitos(cliente, servidor) funciona el comando."
 
     # Se asume que no es local
     isLocal = False
