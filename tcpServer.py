@@ -9,56 +9,53 @@ import sys
 # Paquete de utilidades compartidas en las aplicaciones.
 import util
 
+import serverUtil
+
 # Se imprimen mensajes adicionales si se pone en True.
 DEBUG = True
 
-# Se obtienen los parametros del Servidor TCP.
+# Nombre de la aplicacion.
+APP_NAME = "Servidor TCP"
+
+# Comando de la aplicacion.
+APP_CMD = "./udpServer.py"
+
+# Se obtienen los parametros del Servidor UDP.
 # Los parametros son seleccionados por defecto o bien pasados en
 # la linea de comandos.
-TCP_IP, TCP_PORT, BUFFER_SIZE, HELP_FLAG = util.parseParameters(
+connectionIp, connectionPort, bufferSize, helpFlag = util.parseParameters(
     sys.argv, DEBUG)
 
-# Respuesta cuando se cierra el servidor.
-EXIT_MESSAGE = "Cerrando el servidor."
-EXIT_FLAG = False
-
 # En caso de solicitarse informacion de ayuda, se imprime y se termina el programa.
-if (HELP_FLAG):
-    print("Servidor TCP\n\nUSO:\n")
-    print("  python ./tcpServer.py -h hostIp -p puerto -s tamanoBufer")
-    print("  python ./tcpServer.py --host-ip hostIp --port puerto --buffer-size tamanoBufer\n\nEjemplo:\n")
-    print("  python ./tcpServer.py -h 127.0.0.1 -p 5005 -s 20\n")
-    # Salir del programa
+if (helpFlag):
+    util.printHelp(APP_NAME, APP_CMD)
     sys.exit()
 
-# Se indican datos del programa.
 if (DEBUG):
-    print("Servidor TCP")
-    print("IP: %s \nPuerto: %s\nTamano de Buffer: %s" %
-          (TCP_IP, TCP_PORT, BUFFER_SIZE))
-
+    # Se indican datos del programa.
+    util.printAppInfo(APP_NAME, connectionIp, connectionPort, bufferSize)
 
 # Indefinidamente se escucha por nuevas conexiones.
 while(1):
 
-    # Se baja la bandera de salida
-    EXIT_FLAG = False
+    # Se baja la bandera de salida.
+    exitFlag = False
 
     try:
         # Se crea un socket con direccion IPv4 de tipo stream.
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Se le asigna la direccion IP y puerto al socket.
-        s.bind((TCP_IP, TCP_PORT))
+        s.bind((connectionIp, connectionPort))
 
         # Se espera por una conexion.
         s.listen(1)
 
     except socket.error as err_msg:
         # En caso de error se imprime el codigo y mensaje de error.
-        util.error_handler(err_msg, "Servidor TCP: Socket no creado.")
+        util.error_handler(err_msg, "%s: Socket no creado." % (APP_NAME))
 
-        # Se cierra el programa
+        # Se cierra el programa.
         sys.exit()
 
     try:
@@ -69,21 +66,31 @@ while(1):
 
     except socket.error as err_msg:
         # En caso de error se imprime el codigo y mensaje de error.
-        util.error_handler(err_msg, "Servidor TCP: Conexion no establecida.")
+        util.error_handler(err_msg, "%s: %s", (APP_NAME, util.ERROR_CONN_INIT))
 
         # Se regresa a inicio del while.
         continue
+
+    # Se inicializan los mensajes recibido y enviados completos.
+    receivedData = ""
+    fullResponse = ""
+
+    # Se indica que se trata del primer pedazo recibido.
+    isFirstChunk =  True
+
+    # Se asume que no se trata de un comando.
+    isCommand = False
 
     while(1):
         try:
             # Se almacena los datos recibidos en trozos de tamano
             # BUFFER_SIZE.
-            data = conn.recv(int(BUFFER_SIZE))
+            data = conn.recv(int(bufferSize))
 
         except socket.error as err_msg:
             # En caso de error se imprime el codigo y mensaje de error.
             util.error_handler(
-                err_msg, "Servidor TCP: No se recibio el mensaje.")
+                err_msg, "%s: %s", (APP_NAME, util.ERROR_CONN_RECIEVE))
             break
 
         # Si no hay mas datos, se sale del while.
@@ -91,37 +98,65 @@ while(1):
             break
 
         # Se imprime el ultimo trozo capturado.
-        if (DEBUG): print "    Datos Recibidos:", data
+        if (DEBUG):
+            if (not isFirstChunk):
+                print("")
+            print("  %s: %s" % (util.MESSAGE_MESSAGE_CHUNK_RECEIVED, data))
 
-        if (data == "exit"):
-            # Levantar la bandera de salida.
-            EXIT_FLAG = True
+        # Se actualiza el valor de los datos recibidos completos.
+        receivedData = receivedData + data
 
-            # Actualizar datos con mensaje de salida del servidor.
-            data = EXIT_MESSAGE
-
-        else:
-            # Se realiza la manipulacion de los datos, en este caso se
-            # pasa el texto a mayusculas.
-            data = util.manipulateData(data)
+        # Se manipula el mensaje, en caso que se trate de un comando, se le da el manejo adecuado.
+        response, exitFlag, connectionIp, connectionPort, bufferSize, isCommand = serverUtil.parseMessageAsServer(
+            data, connectionIp, connectionPort, bufferSize)
 
         try:
             # Se envia los datos al cliente.
-            conn.send(data)
+            conn.send(response)
+
         except socket.error as err_msg:
             # En caso de error se imprime el codigo y mensaje de error.
             util.error_handler(
-                err_msg, "Servidor TCP: No se envio la respuesta.")
+                err_msg, "%s: %s", (APP_NAME, util.ERROR_CONN_SEND))
+            continue
 
-        # Se imprime datos enviados al cliente
-        if (DEBUG): print "    Datos Enviados:", data, "\n"
+        # Se acualiza el valor de la respuesta completa.
+        fullResponse = fullResponse + response
+
+        # Se imprime datos recibidos del cliente.
+        if (DEBUG):
+            print("  %s: %s" % (util.MESSAGE_CHUNK_SENT, response))
+
+        # Si se trata de un comando, solo se lee el primer pedazo.
+        if (isFirstChunk and isCommand):
+            isFirstChunk =  False
+            break
+
+        # Se indica que ya no se trata del primer pedazo.
+        isFirstChunk =  False
+
+    # Se imprime datos recibidos del cliente.
+    if (DEBUG):
+        print("%s: %s" % (util.MESSAGE_MESSAGE_RECEIVED, receivedData))
+
+    # Se imprime datos recibidos del cliente.
+    if (DEBUG):
+        print("%s: %s" % (util.MESSAGE_MESSAGE_SENT, fullResponse))
 
     try:
         # Se cierra la conexion.
         conn.close()
-        if (EXIT_FLAG):
-            sys.exit()
 
     except socket.error as err_msg:
         # En caso de error se imprime el codigo y mensaje de error.
-        util.error_handler(err_msg, "Servidor TCP: No se cerro la conexion.")
+        util.error_handler(err_msg, "  %s: %s",
+                           (APP_NAME, util.ERROR_CONN_CLOSE))
+        sys.exit()
+
+    # Se imprime datos recibidos del cliente.
+    if (DEBUG):
+        print("  %s: %s.\n" % (APP_NAME, util.MESSAGE_CONECTION_CLOSED))
+
+    # Si la bandera de salida esta en alto, se sale del programa.
+    if (exitFlag):
+        sys.exit()

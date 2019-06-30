@@ -6,12 +6,16 @@ import re
 # Tamano minimo de buffer.
 MIN_BUFFER_SIZE = 16
 
+# Mensajes a utilizar en la aplicacion.
 MESSAGE_MESSAGE_REQUEST = "\nMensaje: "
 
 MESSAGE_CONN_ADDRESS = "\nDireccion de conexion"
 MESSAGE_MESSAGE_RECEIVED = "  Mensaje recibido"
+MESSAGE_MESSAGE_CHUNK_RECEIVED = "  Trozo recibido"
 MESSAGE_MESSAGE_SENT = "  Mensaje enviado"
+MESSAGE_CHUNK_SENT = "  Trozo enviado"
 MESSAGE_CMD_RESPONSE = "  Respuesta a comando"
+MESSAGE_CONECTION_CLOSED = "Conexion cerrada"
 
 ERROR_CONN_INIT = "Conexion no creada."
 ERROR_CONN_SEND = "Mensaje no enviado."
@@ -19,13 +23,17 @@ ERROR_CONN_RECIEVE = "Mensaje no recibido."
 ERROR_CONN_CLOSE = "Conexion no cerrada."
 ERROR_CONN_TIMEOUT = "Se cumplio el timeout sin recibir una respuesta del servidor."
 
-MESSAGE_EXIT = "Cerrando la aplicacion."                  # Salir de aplicacion.
-MESSAGE_NO_ACTION = "Comando no aplica."                  # Comando sin efectos.
+# Salir de aplicacion.
+MESSAGE_EXIT = "Cerrando la aplicacion."
+# Comando sin efectos.
+MESSAGE_NO_ACTION = "Comando no aplica."
 MESSAGE_INCORRECT_COMMAND = "Comando incorrecto."         # Comando incorrecto.
+
 # Respuestas del servidor.
 MESSAGE_SERVER_EXIT = "Cerrando el servidor."
 MESSAGE_SERVER_NO_ACTION = MESSAGE_NO_ACTION
 MESSAGE_SERVER_INCORRECT_COMMAND = MESSAGE_INCORRECT_COMMAND
+
 # Respuestas del cliente.
 MESSAGE_CLIENT_EXIT = "Cerrando el cliente."
 MESSAGE_CLIENT_NO_ACTION = MESSAGE_NO_ACTION
