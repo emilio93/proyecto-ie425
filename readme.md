@@ -181,14 +181,6 @@ Direccion de conexion: ('127.0.0.1', 56601)
   Servidor TCP: Conexion cerrada.
 ```
 
-### Aplicación
-
-Para las aplicaciones del servidor tanto TCP como UDP, se utiliza una mismo método que se encarga de pasar el texto a mayúscula y responder esto. Además comparte con el cliente la habilidad de ser cerrado, para esto se recibe el mensaje `$$ exit`. Se puede ver la informacion de los hosts con `$$ info` y se puede actualizar el valor del buffer, por ejemplo a 64, `$$ update -s 64`.
-
-Para las aplicaciones del cliente tanto TCP como UDP, se analiza el mensaje enviado para determinar si se trata de un comando, los mismos que se han indicado para el servidor.
-
-Cuando se quiere aplicar un comando solo al cliente o solo al servidor, se utilizan las palabras `local` y `remote` respectivamente, justo luego del comando. Por ejemplo se cierra el servidor con `$$ exit remote`, o el cliente con `$$ exit local`. Para actualizar el buffer, de nuevo a 64, solo el el servidor, se usaría `$$ update remote -s 64`. En el último caso, se utiliza la bandera `-s`, que indica el tamaño del buffer, para el comando `$$ info`, se permiten las banderas `-h`, `-p` y `-s`, para imprimir solo la dirección ip, puerto, o tamano de buffer respectivamente. Por ejemplo `$$ info local -h`
-
 #### Revisión con Wireshark
 
 En el archivo [`ws-tcpdump.md`](ws-tcpdump.md) se muestra una captura en wireshark para el ejemplo de uso mostrado. Los 3 primeros _frames_ son el _three-way_ _handshake_, se identifican por la bandera `SYN` las dos primeras, la tercera por la bandera `ACK` y longitud del paquete igual a cero. Las tramas 8, 9, 10 y 11 encargan de finalizar la conexión.
@@ -213,3 +205,11 @@ Resumen de desconexión:
 #### Mayor Cantidad de Conexiones
 
 #### Mayor Tamaño del Datagrama
+
+### Aplicación
+
+Para las aplicaciones del servidor tanto TCP como UDP, se utiliza una mismo método que se encarga de pasar el texto a mayúscula y responder esto. Además comparte con el cliente la habilidad de ser cerrado, para esto se recibe el mensaje `$$ exit`. Se puede ver la informacion de los hosts con `$$ info` y se puede actualizar el valor del buffer, por ejemplo a 64, `$$ update -s 64`.
+
+Para las aplicaciones del cliente tanto TCP como UDP, se analiza el mensaje enviado para determinar si se trata de un comando, los mismos que se han indicado para el servidor.
+
+Cuando se quiere aplicar un comando solo al cliente o solo al servidor, se utilizan las palabras `local` y `remote` respectivamente, justo luego del comando. Por ejemplo se cierra el servidor con `$$ exit remote`, o el cliente con `$$ exit local`. Para actualizar el buffer, de nuevo a 64, solo el el servidor, se usaría `$$ update remote -s 64`. En el último caso, se utiliza la bandera `-s`, que indica el tamaño del buffer, para el comando `$$ info`, se permiten las banderas `-h`, `-p` y `-s`, para imprimir solo la dirección ip, puerto, o tamano de buffer respectivamente. Por ejemplo `$$ info local -h`
