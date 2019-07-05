@@ -52,6 +52,7 @@ while(1):
         userMessage, connectionIp, connectionPort, bufferSize)
 
     if (isCommand):
+        userMessage = "$$ " + util.commandCleanup(userMessage)
         # Si el mensaje es un comando, se indica la respuesta de ejecutarlo.
         if (DEBUG):
             print ("%s: %s" % (util.MESSAGE_CMD_RESPONSE, parsedMessage))
