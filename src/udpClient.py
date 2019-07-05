@@ -41,16 +41,18 @@ if (helpFlag):
 if (DEBUG):
     util.printAppInfo(APP_NAME, connectionIp, connectionPort, bufferSize)
 
-try:
-    # Se crea el socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-except socket.error as err_msg:
-    # En caso de no poder crear la conexion, se indica y se termina el programa.
-    util.error_handler(err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_INIT)))
-    sys.exit()
 
 while (1):
+
+    try:
+        # Se crea el socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    except socket.error as err_msg:
+        # En caso de no poder crear la conexion, se indica y se termina el programa.
+        util.error_handler(err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_INIT)))
+        sys.exit()
 
     # Se obtiene mensaje del usuario.
     userMessage = raw_input(util.MESSAGE_MESSAGE_REQUEST)
