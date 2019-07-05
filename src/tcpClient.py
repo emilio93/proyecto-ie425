@@ -151,7 +151,7 @@ while(1):
 
     except socket.error as err_msg:
         # En caso de error se imprime el codigo y mensaje de error.
-        util.error_handler(err_msg, "%s: $" %
+        util.error_handler(err_msg, "%s: %s" %
                            (APP_NAME, util.ERROR_CONN_CLOSE))
 
     if (DEBUG):

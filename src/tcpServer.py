@@ -66,7 +66,8 @@ while(1):
 
     except socket.error as err_msg:
         # En caso de error se imprime el codigo y mensaje de error.
-        util.error_handler(err_msg, "%s: %s", (APP_NAME, util.ERROR_CONN_INIT))
+        util.error_handler(err_msg, "%s: %s" %
+                           (APP_NAME, util.ERROR_CONN_INIT))
 
         # Se regresa a inicio del while.
         continue
@@ -90,7 +91,7 @@ while(1):
         except socket.error as err_msg:
             # En caso de error se imprime el codigo y mensaje de error.
             util.error_handler(
-                err_msg, "%s: %s", (APP_NAME, util.ERROR_CONN_RECIEVE))
+                err_msg, "%s: %s" % (APP_NAME, util.ERROR_CONN_RECIEVE))
             break
 
         # Si no hay mas datos, se sale del while.
@@ -117,7 +118,7 @@ while(1):
         except socket.error as err_msg:
             # En caso de error se imprime el codigo y mensaje de error.
             util.error_handler(
-                err_msg, "%s: %s", (APP_NAME, util.ERROR_CONN_SEND))
+                err_msg, "%s: %s" % (APP_NAME, util.ERROR_CONN_SEND))
             continue
 
         # Se acualiza el valor de la respuesta completa.
@@ -149,7 +150,7 @@ while(1):
 
     except socket.error as err_msg:
         # En caso de error se imprime el codigo y mensaje de error.
-        util.error_handler(err_msg, "  %s: %s",
+        util.error_handler(err_msg, "  %s: %s" %
                            (APP_NAME, util.ERROR_CONN_CLOSE))
         sys.exit()
 
