@@ -55,7 +55,10 @@ while (1):
         sys.exit()
 
     # Se obtiene mensaje del usuario.
-    userMessage = raw_input(util.MESSAGE_MESSAGE_REQUEST)
+    try:
+        userMessage = raw_input(util.MESSAGE_MESSAGE_REQUEST)
+    except EOFError as err_msg:
+        sys.exit()
 
     # Se procesa el mensaje a enviar.
     parsedMessage, exitFlag, connectionIp, connectionPort, bufferSize, isCommand, isLocalOnly = clientUtil.parseMessageAsClient(
