@@ -21,10 +21,6 @@ APP_NAME = "Servidor UDP"
 # Comando de la aplicacion.
 APP_CMD = "udpServer.py"
 
-# Contadores de mensajes recibidos y enviados.
-mssgReceivedCount = 0
-mssgSentCount = 0
-
 # Se obtienen los parametros del Servidor UDP.
 # Los parametros son seleccionados por defecto o bien pasados en
 # la linea de comandos.
@@ -80,13 +76,9 @@ while (1):
 
         continue
 
-    # Se actualiza la cantidad de mensajes recibidos una vez que ha sido recibido un mensaje.
-    mssgReceivedCount = mssgReceivedCount + 1
-
     if (DEBUG):
         # Se imprime direccion de conexion y mensaje recibidos.
         print("%s: %s" % (util.MESSAGE_CONN_ADDRESS, addr))
-        print("%s: %s" % (util.MESSAGE_MSSG_RECEIVED_QTY, mssgReceivedCount))
         print("%s: %s" % (util.MESSAGE_MESSAGE_RECEIVED, receivedData))
 
     # Se manipula el mensaje, en caso que se trate de un comando, se le da el manejo adecuado.
@@ -104,17 +96,12 @@ while (1):
             err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_SEND)))
         continue
 
-    # Se actualiza la cantidad de mensajes enviados una vez que ha sido enviada.
-    mssgSentCount =mssgSentCount + 1
-
     if (DEBUG):
         # Se indica el mensaje enviado
         if (isCommand):
             print("%s: %s" % (util.MESSAGE_CMD_RESPONSE, response))
         else:
             print("%s: %s" % (util.MESSAGE_MESSAGE_SENT, response))
-
-        print("%s: %s" % (util.MESSAGE_MSSG_SENT_QTY, mssgSentCount))
 
     if (exitFlag):
         try:

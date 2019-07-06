@@ -9,8 +9,6 @@ MIN_BUFFER_SIZE = 16
 # Mensajes a utilizar en la aplicacion.
 MESSAGE_MESSAGE_REQUEST = "\nMensaje: "
 
-MESSAGE_MSSG_RECEIVED_QTY = "Cantidad de mensajes recibidos"
-MESSAGE_MSSG_SENT_QTY = "Cantidad de mensajes enviados"
 MESSAGE_CONN_ADDRESS = "\nDireccion de conexion"
 MESSAGE_MESSAGE_RECEIVED = "  Mensaje recibido"
 MESSAGE_MESSAGE_CHUNK_RECEIVED = "  Trozo recibido"
