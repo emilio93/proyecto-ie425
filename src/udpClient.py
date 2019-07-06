@@ -24,6 +24,10 @@ APP_CMD = "udpClient.py"
 # Tiempo que se espera por la respuesta del servidor.
 WAIT_FOR_RESPONSE = 2
 
+# Contadores de mensajes recibidos y enviados.
+mssgReceivedCount = 0
+mssgSentCount = 0
+
 # Se obtienen los parametros del Servidor UDP, ip, puerto y
 # tamano de buffer en bytes.
 # Los parametros son seleccionados por defecto o bien pasados en
@@ -40,7 +44,6 @@ if (helpFlag):
 # Se indican datos del programa.
 if (DEBUG):
     util.printAppInfo(APP_NAME, connectionIp, connectionPort, bufferSize)
-
 
 
 while (1):
@@ -86,9 +89,13 @@ while (1):
             err_msg, ("%s: %s" % (APP_NAME, util.ERROR_CONN_SEND)))
         continue
 
+    # Se actualiza la cantidad de mensaje enviados.
+    mssgSentCount = mssgSentCount + 1
+
     # Se indica el mensaje enviado.
     if (DEBUG):
         print("%s: %s" % (util.MESSAGE_MESSAGE_SENT, userMessage))
+        print("%s: %s" % (util.MESSAGE_MSSG_SENT_QTY, mssgSentCount))
 
     try:
         # Se espera un tiempo por la respuesta del servidor.
@@ -106,9 +113,11 @@ while (1):
             if not data:
                 continue
 
+            mssgReceivedCount = mssgReceivedCount + 1
             # Cuando llega la respuesta, se imprime y se deja de esperar.
             if (DEBUG):
                 print("%s: %s" % (util.MESSAGE_MESSAGE_RECEIVED, data))
+                print("%s: %s" % (util.MESSAGE_MSSG_RECEIVED_QTY, mssgReceivedCount))
             break
     except socket.timeout:
         print("%s: %s" % (
